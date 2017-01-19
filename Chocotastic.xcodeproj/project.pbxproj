@@ -123,10 +123,10 @@
 			isa = PBXGroup;
 			children = (
 				9BE373161D0511EE0024946D /* AppDelegate.swift */,
+				9BE373181D0511EE0024946D /* ChocolatesOfTheWorldViewController.swift */,
 				9B4EDDA21D067DD000C26AD9 /* BillingInfoViewController.swift */,
 				9BC05E881D066C71001CC382 /* CartViewController.swift */,
 				9BECE37F1D07C934003242EE /* ChocolateIsComingViewController.swift */,
-				9BE373181D0511EE0024946D /* ChocolatesOfTheWorldViewController.swift */,
 				9B4068D21D0E5539009859C5 /* ChocolateNavigationController.swift */,
 				9BE3731A1D0511EE0024946D /* Main.storyboard */,
 				9B4EDDA81D0714F000C26AD9 /* Extensions */,
