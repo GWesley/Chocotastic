@@ -33,14 +33,16 @@ class BillingInfoViewController: UIViewController {
   @IBOutlet private var purchaseButton: UIButton!
   
   private let cardType: Variable<CardType> = Variable(.Unknown)
-  
+  private let disposeBag = DisposeBag()
+  private let throttleInterval = 0.1
   //MARK: - View Lifecycle
   
   override func viewDidLoad() {
     super.viewDidLoad()
     
     title = "💳 Info"
-    
+    setupCardImageDisplay()
+    setupTextHandling()
   }
   
   override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -57,7 +59,54 @@ class BillingInfoViewController: UIViewController {
   }
   
   //MARK: - RX Setup
-
+  private func setupCardImageDisplay() {
+    cardType.asObservable().subscribe(onNext: {
+      cardType in
+      self.creditCardImageView.image = cardType.image
+    }).addDisposableTo(disposeBag)
+  }
+  
+  private func setupTextHandling() {
+    let creditCardValid = creditCardNumberTextField
+    .rx
+    .text
+    .throttle(throttleInterval, scheduler: MainScheduler.instance)
+    .map {self.validate(cardText: $0)}
+    
+    creditCardValid.subscribe(onNext: {
+      self.creditCardNumberTextField.valid = $0
+    }).addDisposableTo(disposeBag)
+    
+    let expirationValid = expirationDateTextField
+    .rx
+    .text
+    .throttle(throttleInterval, scheduler: MainScheduler.instance)
+    .map {self.validate(expirationDateText: $0)}
+    
+    expirationValid.subscribe(onNext: {
+      self.expirationDateTextField.valid = $0
+    }).addDisposableTo(disposeBag)
+    
+    let cvvValid = cvvTextField
+      .rx
+      .text
+      .throttle(throttleInterval, scheduler: MainScheduler.instance)
+      .map {self.validate(cvvText: $0)}
+    
+    cvvValid.subscribe(onNext: {
+      self.cvvTextField.valid = $0
+    }).addDisposableTo(disposeBag)
+    
+    let everyThingValid = Observable
+      .combineLatest(creditCardValid, expirationValid, cvvValid) {
+        $0 && $1 && $2
+    }
+    
+    everyThingValid
+      .bindTo(purchaseButton.rx.enabled)
+      .addDisposableTo(disposeBag)
+    
+  }
   
 
   //MARK: - Validation methods
